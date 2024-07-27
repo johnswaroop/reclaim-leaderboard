@@ -12,7 +12,7 @@ import providerIds from "@/providers";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { GoogleUserPayload } from "@/types";
-import { toast } from "sonner";
+import { toast, useSonner } from "sonner";
 
 const Hero = () => {
   const [url, seturl] = useState("");
@@ -48,6 +48,12 @@ const Hero = () => {
           providerId,
           proof,
         });
+        if (res.status == 200) {
+          toast("Proof Submission successful");
+          setTimeout(() => {
+            location.reload();
+          }, 1000);
+        }
       },
       onFailureCallback: (error) => {
         console.error("Verification failed", error);
@@ -106,7 +112,7 @@ const Hero = () => {
           </div>
         </div>
       )}
-      <Leaderboard providerName={label} />
+      {/* <Leaderboard providerName={label} /> */}
     </section>
   );
 };
