@@ -19,16 +19,41 @@ const Hero = () => {
   const [label, setlabel] = useState("");
 
   const getVerificationReq = async (providerId: string) => {
-    let token = localStorage.getItem("token");
-    let res = await axios.post("/api/generate-proof", {
-      token: token,
-      providerId,
-    });
-    let url = res.data.requestUrl;
-    seturl(url);
+    const reclaimClient = new Reclaim.ProofRequest(
+      process.env.APP_ID as string
+    );
+
+    await reclaimClient.buildProofRequest(providerId);
+
+    const APP_SECRET = process.env.APP_SECRET; // your app secret key.
+
+    reclaimClient.setSignature(
+      await reclaimClient.generateSignature(APP_SECRET as string)
+    );
+
+    const { requestUrl, statusUrl } =
+      await reclaimClient.createVerificationRequest();
+
+    seturl(requestUrl);
     if (window.innerWidth < 500) {
       window.open(url, "_blank");
     }
+
+    reclaimClient.startSession({
+      onSuccessCallback: async (proof) => {
+        console.log("Verification success", proof);
+        let token = localStorage.getItem("token");
+        let res = await axios.post("/api/generate-proof", {
+          token: token,
+          providerId,
+          proof,
+        });
+      },
+      onFailureCallback: (error) => {
+        console.error("Verification failed", error);
+        // Your business logic here to handle the error
+      },
+    });
   };
 
   return (
