@@ -16,7 +16,13 @@ import { toast } from "sonner";
 
 const Hero = () => {
   const [url, seturl] = useState("");
-  const [label, setlabel] = useState("");
+  const [value, setvalue] = useState("");
+
+  useEffect(() => {
+    let path = location.pathname;
+    let id = path.split("/")[2];
+    setvalue(id);
+  }, []);
 
   const getVerificationReq = async (providerId: string) => {
     let token = localStorage.getItem("token");
@@ -26,36 +32,26 @@ const Hero = () => {
     });
     let url = res.data.requestUrl;
     seturl(url);
-    if (window.innerWidth < 500) {
-      window.open(url, "_blank");
-    }
   };
 
   return (
-    <section className="bg-[#00E] min-h-screen flex flex-col w-full h-[880px] max-[1090px]:h-fit relative items-center pb-8 h-fit">
+    <section className="bg-[#00E] min-h-screen flex flex-col w-full h-[880px] max-[1090px]:h-fit relative items-center">
       <Nav />
       <Dots />
       <div className="flex w-[90%] z-10  flex-col   bg-[#FAF4F0] max-w-fit rounded-lg mt-[8vh] p-8 max-[500px]:p-6">
         <h1 className="text-2xl font-medium ">Generate Proof</h1>
-        <Combobox value={label} setValue={setlabel} />
-        {/* <h1 className="w-[500px] max-[580px]:w-full mt-3">{value}</h1> */}
+        {/* <Combobox value={value} setValue={setvalue} /> */}
+        <h1 className="w-[500px] max-[580px]:w-full mt-3">{value}</h1>
         <p className="text-gray-600 text-sm mt-6">
           Complete tasks to earn XP and unlock rewards
         </p>
         <Button
-          disabled={label == ""}
           onClick={() => {
             let token = localStorage.getItem("token");
             if (!token) {
               return toast("Please Log-In to generate proof!");
             }
-            console.log(label);
-            let id = providerIds.find(
-              (ele) =>
-                ele.label.toLocaleLowerCase() == label.toLocaleLowerCase()
-            )?.value;
-            console.log(id);
-            getVerificationReq(id as string);
+            getVerificationReq(value);
           }}
           className="bg-[#00E] mt-3 hover:bg-[#0e0ea3]"
         >
@@ -72,21 +68,21 @@ const Hero = () => {
             <QRCodeComp value={url} />
             <Button
               onClick={() => {
-                window.open(url, "_blank");
+                navigator.clipboard.writeText(url);
               }}
               className="mt-8 bg-[#00E]"
             >
-              Open Reclaim
+              Copy link
             </Button>
           </div>
         </div>
       )}
-      <Leaderboard providerName={label} />
+      <Leaderboard />
     </section>
   );
 };
 
-const Leaderboard = ({ providerName }: { providerName: string }) => {
+const Leaderboard = () => {
   const [loading, setloading] = useState(true);
   const [data, setdata] = useState<
     { email: string; totalXp: number; name: string; picture: string }[]
@@ -108,9 +104,7 @@ const Leaderboard = ({ providerName }: { providerName: string }) => {
 
   return (
     <div className="flex z-10 fadein flex-col   bg-[#FAF4F0] rounded-lg mt-8 p-8 w-fit gap-3 max-[500px]:p-6">
-      <h1 className="text-2xl font-medium capitalize">
-        {providerName} Leaderboard
-      </h1>
+      <h1 className="text-2xl font-medium ">Leaderboard</h1>
       <div className="flex flex-col gap-4 mt-2">
         {[...data].map((ele, idx) => {
           return (

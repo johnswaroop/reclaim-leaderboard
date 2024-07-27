@@ -21,9 +21,13 @@ import providerIds from "@/providers";
 export function Combobox({
   value,
   setValue,
+  placeholder,
+  defaultText,
 }: {
   value: string;
   setValue: (val: string) => any;
+  placeholder: string;
+  defaultText: string;
 }) {
   const [open, setOpen] = React.useState(false);
 
@@ -36,14 +40,14 @@ export function Combobox({
           aria-expanded={open}
           className="w-[80vw] max-w-[500px] justify-between capitalize mt-4 max-[500px]:w-full"
         >
-          {value ? value : "Select Provider"}
+          {value ? value : `${defaultText}`}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[80vw] max-w-[500px] max-[500px]:w-full ">
         <Command>
-          <CommandInput placeholder="Search Provider..." />
-          <CommandEmpty>No Provider found.</CommandEmpty>
+          <CommandInput placeholder={`Search ${placeholder}...`} />
+          <CommandEmpty>No {placeholder} found.</CommandEmpty>
           <CommandGroup>
             {providerIds.map((framework) => {
               return (
